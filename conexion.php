@@ -35,9 +35,12 @@ function conectaDB(): mysqli
     mysqli_report(MYSQLI_REPORT_OFF);
     $link = mysqli_init();
     $flags = 0;
-    if (DB_SSL) {
-        $flags = MYSQLI_CLIENT_SSL | MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
-    }
+   if (DB_SSL) {
+    $dont_verify = defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT') 
+        ? MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT 
+        : 64; // Valor numérico de fallback en mysqli
+    $flags = MYSQLI_CLIENT_SSL | $dont_verify;
+}
     if (!@$link->real_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT, null, $flags)) {
         responder(['ok' => false, 'error' => 'No se pudo conectar a la base de datos. Revisa las variables de entorno / conexion.php.'], 500);
     }
